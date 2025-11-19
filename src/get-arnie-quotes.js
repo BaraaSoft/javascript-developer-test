@@ -1,8 +1,38 @@
 const { httpGet } = require('./mock-http-interface');
 
 const getArnieQuotes = async (urls) => {
-  // TODO: Implement this function.
-  // return results;
+
+  const responses = await Promise.all(urls.map(httpGet))
+
+  const messages = responses.map(({ status, body }) => {
+    if (!status) {
+      console.error("Request Error");
+      return { 'FAILURE': 'Your request has been terminated' }
+    }
+
+    try {
+      const { message } = JSON.parse(body);
+
+
+
+      switch (status) {
+        case 200: return { 'Arnie Quote': message }
+        case 500: return { 'FAILURE': 'Your request has been terminated' }
+        default: return { 'FAILURE': 'Not implemented error' }
+      }
+
+
+
+    } catch (error) {
+
+      console.error("Error parsing JSON", error.message);
+      return { 'FAILURE': 'Your request has been terminated' }
+
+    }
+
+  })
+
+  return messages
 };
 
 module.exports = {
