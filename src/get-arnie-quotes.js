@@ -20,7 +20,7 @@ const getArnieQuotes = async (urls) => {
     } catch (error) {
 
       console.error("Error parsing JSON", error.message);
-      return { 'FAILURE': 'Your request has been terminated' }
+      return { 'FAILURE': 'Error parsing response payload' }
 
     }
 

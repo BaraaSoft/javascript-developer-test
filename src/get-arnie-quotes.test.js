@@ -9,14 +9,14 @@ const urls = [
 
 test('expect no throws', () => {
   expect.assertions(1);
-  expect(async () => await getArnieQuotes(urls)).not.toThrow(); 
+  expect(async () => await getArnieQuotes(urls)).not.toThrow();
 });
 
 test('responses to be correct', async () => {
   expect.assertions(5);
 
   const results = await getArnieQuotes(urls);
-  
+
   expect(results.length).toBe(4);
 
   expect(results[0]).toEqual({ 'Arnie Quote': 'Get to the chopper' });
@@ -30,8 +30,30 @@ test('code to be executed in less than 400ms', async () => {
 
   const startTime = process.hrtime();
   await getArnieQuotes(urls);
-  const [ seconds, nanos ] = process.hrtime(startTime);
-  
+  const [seconds, nanos] = process.hrtime(startTime);
+
   expect(seconds).toBe(0);
   expect(nanos / 1000 / 1000).toBeLessThan(400);
+});
+
+test('handles malformed JSON body', async () => {
+
+
+  // Mock the httpGet function to return malformed JSON
+  jest.doMock('./mock-http-interface', () => ({
+    httpGet: jest.fn().mockResolvedValue({
+      status: 200,
+      body: '{"message": "This is not valid JSON' // Missing closing brace
+    })
+  }));
+  jest.resetModules();
+  const { getArnieQuotes } = require('./get-arnie-quotes');
+
+  const testUrls = ['http://www.smokeballdev.com/test'];
+  const results = await getArnieQuotes(testUrls);
+
+  expect(results.length).toBe(1);
+  expect(results[0]).toEqual({ 'FAILURE': 'Error parsing response payload' });
+  jest.resetModules();
+  jest.dontMock('./mock-http-interface');
 });
