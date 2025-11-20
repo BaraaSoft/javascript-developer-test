@@ -5,15 +5,9 @@ const getArnieQuotes = async (urls) => {
   const responses = await Promise.all(urls.map(httpGet))
 
   const messages = responses.map(({ status, body }) => {
-    if (!status) {
-      console.error("Request Error");
-      return { 'FAILURE': 'Your request has been terminated' }
-    }
 
     try {
       const { message } = JSON.parse(body);
-
-
 
       switch (status) {
         case 200: return { 'Arnie Quote': message }
